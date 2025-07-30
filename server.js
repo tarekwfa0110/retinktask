@@ -10,21 +10,18 @@ const Groq = require('groq-sdk');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize Groq
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: Math.ceil((parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000) / 1000)
@@ -34,7 +31,6 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Validation middleware
 const validateSummarizeRequest = [
   body('text')
     .isString()
@@ -53,12 +49,10 @@ const validateSummarizeRequest = [
     .withMessage('Length must be one of: short, medium, long')
 ];
 
-// Utility function to count words
 const countWords = (text) => {
   return text.trim().split(/\s+/).filter(word => word.length > 0).length;
 };
 
-// Utility function to get summary length based on preference
 const getSummaryLength = (length) => {
   switch (length) {
     case 'short': return '1-2 sentences';
@@ -67,7 +61,6 @@ const getSummaryLength = (length) => {
   }
 };
 
-// Utility function to get tone instruction
 const getToneInstruction = (tone) => {
   switch (tone) {
     case 'professional': return 'Use a professional and formal tone.';
@@ -78,7 +71,6 @@ const getToneInstruction = (tone) => {
   }
 };
 
-// Routes
 app.get('/', (req, res) => {
   res.json({
     message: 'Retink Text Summarizer API',
@@ -102,7 +94,6 @@ app.get('/health', (req, res) => {
 
 app.post('/summarize', validateSummarizeRequest, async (req, res) => {
   try {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -110,21 +101,11 @@ app.post('/summarize', validateSummarizeRequest, async (req, res) => {
         details: errors.array()
       });
     }
-
     const { text, tone = 'professional', length = 'medium' } = req.body;
-    
-    // Count words in original text
     const originalWordCount = countWords(text);
-    
-    // Prepare the prompt
     const summaryLength = getSummaryLength(length);
     const toneInstruction = getToneInstruction(tone);
-    
-    const prompt = `Summarize this content in ${summaryLength}. ${toneInstruction} Focus on the key points and main ideas:
-
-${text}`;
-
-    // Call Groq API
+    const prompt = `Summarize this content in ${summaryLength}. ${toneInstruction} Focus on the key points and main ideas:\n\n${text}`;
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
@@ -140,11 +121,8 @@ ${text}`;
       max_tokens: 300,
       temperature: 0.3
     });
-
     const summary = chatCompletion.choices[0].message.content.trim();
     const summaryWordCount = countWords(summary);
-
-    // Return the response
     res.json({
       success: true,
       data: {
@@ -161,33 +139,26 @@ ${text}`;
       },
       timestamp: new Date().toISOString()
     });
-
   } catch (error) {
     console.error('Summarization error:', error);
-    
-    // Handle specific Groq errors
     if (error.status === 429) {
       return res.status(503).json({
         error: 'Service temporarily unavailable due to rate limits',
         message: 'Please try again later'
       });
     }
-    
     if (error.status === 401) {
       return res.status(500).json({
         error: 'Configuration error',
         message: 'API key is invalid or missing'
       });
     }
-    
     if (error.message && error.message.includes('context_length')) {
       return res.status(400).json({
         error: 'Text too long',
         message: 'The provided text exceeds the maximum allowed length'
       });
     }
-
-    // Generic error response
     res.status(500).json({
       error: 'Internal server error',
       message: 'Failed to generate summary. Please try again.',
@@ -196,7 +167,6 @@ ${text}`;
   }
 });
 
-// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Endpoint not found',
@@ -204,7 +174,6 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handler
 app.use((error, req, res, next) => {
   console.error('Unhandled error:', error);
   res.status(500).json({
@@ -213,7 +182,6 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📝 Text Summarizer API ready (Groq)`);

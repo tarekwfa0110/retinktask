@@ -89,13 +89,13 @@ npm run dev
 npm start
 ```
 
-The server will start on `http://localhost:3000`
+The server will start on `http://localhost:3000` (for local development)
 
 ## API Documentation
 
 ### Base URL
 ```
-http://localhost:3000
+https://retink-text-summarizer-production.up.railway.app/
 ```
 
 ### Endpoints
@@ -108,6 +108,7 @@ Returns API information and available endpoints.
 {
   "message": "Retink Text Summarizer API",
   "version": "1.0.0",
+  "provider": "Groq",
   "endpoints": {
     "POST /summarize": "Summarize text using AI",
     "GET /health": "Health check endpoint"
@@ -123,7 +124,8 @@ Health check endpoint to verify API status.
 {
   "status": "healthy",
   "timestamp": "2025-07-27T16:21:00.000Z",
-  "uptime": 123.456
+  "uptime": 123.456,
+  "provider": "Groq"
 }
 ```
 
@@ -152,7 +154,8 @@ Summarize text using AI.
     "settings": {
       "tone": "professional",
       "length": "medium"
-    }
+    },
+    "model": "llama-3.3-70b-versatile"
   },
   "timestamp": "2025-07-27T16:21:00.000Z"
 }
@@ -162,7 +165,7 @@ Summarize text using AI.
 
 ### Basic Summarization
 ```bash
-curl -X POST http://localhost:3000/summarize \
+curl -X POST https://retink-text-summarizer-production.up.railway.app/summarize \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Artificial intelligence (AI) is a branch of computer science that aims to create intelligent machines that work and react like humans. Some of the activities computers with artificial intelligence are designed for include speech recognition, learning, planning, and problem solving. AI has been used in various applications such as virtual assistants, autonomous vehicles, medical diagnosis, and game playing. The field of AI research was founded on the assumption that human intelligence can be precisely described and simulated by machines. This assumption has led to significant advances in machine learning, natural language processing, and robotics. Today, AI technologies are becoming increasingly integrated into our daily lives, from smartphone apps to smart home devices."
@@ -171,10 +174,10 @@ curl -X POST http://localhost:3000/summarize \
 
 ### Custom Tone and Length
 ```bash
-curl -X POST http://localhost:3000/summarize \
+curl -X POST https://retink-text-summarizer-production.up.railway.app/summarize \
   -H "Content-Type: application/json" \
   -d '{
-    "text": "Climate change refers to long-term shifts in temperatures and weather patterns. These shifts may be natural, such as through variations in the solar cycle. But since the 1800s, human activities have been the main driver of climate change, primarily due to the burning of fossil fuels like coal, oil and gas. Burning fossil fuels generates greenhouse gas emissions that act like a blanket wrapped around the Earth, trapping the sun's heat and raising temperatures. Examples of greenhouse gas emissions that are causing climate change include carbon dioxide and methane. These come from using gasoline for driving a car or coal for heating a building, for example. Clearing land and forests can also release carbon dioxide. Landfills for garbage are a major source of methane emissions. Energy, industry, transport, buildings, agriculture and land use are among the main emitters.",
+    "text": "Climate change refers to long-term shifts in temperatures and weather patterns...",
     "tone": "academic",
     "length": "long"
   }'
@@ -182,7 +185,7 @@ curl -X POST http://localhost:3000/summarize \
 
 ### Error Response Example
 ```bash
-curl -X POST http://localhost:3000/summarize \
+curl -X POST https://retink-text-summarizer-production.up.railway.app/summarize \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Too short"
@@ -221,9 +224,7 @@ The API includes comprehensive error handling for:
 ### Deploy to Render
 
 1. **Create a Render account** at [render.com](https://render.com)
-
 2. **Connect your GitHub repository**
-
 3. **Create a new Web Service**
    - Choose your repository
    - Set build command: `npm install`
@@ -232,36 +233,29 @@ The API includes comprehensive error handling for:
      - `GROQ_API_KEY`: Your Groq API key
      - `NODE_ENV`: `production`
      - `PORT`: `10000` (Render's default)
-
 4. **Deploy**
 
 ### Deploy to Railway
 
 1. **Create a Railway account** at [railway.app](https://railway.app)
-
 2. **Connect your GitHub repository**
-
 3. **Add environment variables**:
    - `GROQ_API_KEY`: Your Groq API key
    - `NODE_ENV`: `production`
-
 4. **Deploy automatically**
 
 ### Deploy to Heroku
 
 1. **Create a Heroku account** and install CLI
-
 2. **Create a new app**:
    ```bash
    heroku create your-app-name
    ```
-
 3. **Set environment variables**:
    ```bash
    heroku config:set GROQ_API_KEY=your_api_key
    heroku config:set NODE_ENV=production
    ```
-
 4. **Deploy**:
    ```bash
    git push heroku main

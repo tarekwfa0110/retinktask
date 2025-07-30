@@ -131,7 +131,7 @@ PORT=3000 (or platform default)
 
 ### Basic Summarization
 ```bash
-curl -X POST http://localhost:3000/summarize \
+curl -X POST https://retink-text-summarizer-production.up.railway.app/summarize \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Artificial intelligence (AI) is a branch of computer science that aims to create intelligent machines that work and react like humans. Some of the activities computers with artificial intelligence are designed for include speech recognition, learning, planning, and problem solving. AI has been used in various applications such as virtual assistants, autonomous vehicles, medical diagnosis, and game playing. The field of AI research was founded on the assumption that human intelligence can be precisely described and simulated by machines. This assumption has led to significant advances in machine learning, natural language processing, and robotics. Today, AI technologies are becoming increasingly integrated into our daily lives, from smartphone apps to smart home devices."
@@ -140,7 +140,7 @@ curl -X POST http://localhost:3000/summarize \
 
 ### Custom Tone and Length
 ```bash
-curl -X POST http://localhost:3000/summarize \
+curl -X POST https://retink-text-summarizer-production.up.railway.app/summarize \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Climate change refers to long-term shifts in temperatures and weather patterns...",
@@ -186,6 +186,9 @@ This implementation exceeds the basic requirements by providing:
 The API is ready for immediate deployment and use, with comprehensive error handling, security features, and performance optimizations.
 
 ---
+
+**Live API URL:**
+https://retink-text-summarizer-production.up.railway.app/
 
 **Built by Tarek for Retink Media - Software Developer (Backend) Position**
 **Submission Date: July 27, 2025**
